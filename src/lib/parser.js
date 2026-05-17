@@ -210,10 +210,10 @@ export function parseNeetQuestions(rawText) {
     // D. Option D text
     // OR (A) Option A (B) Option B (C) Option C (D) Option D
     
-    const optAPattern = /(?:\r?\n|^)\s*[\(\[\\{]?\s*A\s*[\.\:\)\s\]\}]/i;
-    const optBPattern = /(?:\r?\n|^)\s*[\(\[\\{]?\s*B\s*[\.\:\)\s\]\}]/i;
-    const optCPattern = /(?:\r?\n|^)\s*[\(\[\\{]?\s*C\s*[\.\:\)\s\]\}]/i;
-    const optDPattern = /(?:\r?\n|^)\s*[\(\[\\{]?\s*D\s*[\.\:\)\s\]\}]/i;
+    const optAPattern = /(?:\r?\n|^)\s*[\(\[]?\s*A[\.\:\)]/i;
+    const optBPattern = /(?:\r?\n|^)\s*[\(\[]?\s*B[\.\:\)]/i;
+    const optCPattern = /(?:\r?\n|^)\s*[\(\[]?\s*C[\.\:\)]/i;
+    const optDPattern = /(?:\r?\n|^)\s*[\(\[]?\s*D[\.\:\)]/i;
 
     const idxA = blockText.search(optAPattern);
     const idxB = blockText.search(optBPattern);
@@ -233,7 +233,7 @@ export function parseNeetQuestions(rawText) {
       // Extract option details
       // Clean option prefix like "A. ", "(A) ", "A) "
       const cleanOptionText = (text) => {
-        return text.replace(/^\s*[\(\[\\{]?\s*[A-D]\s*[\.\:\)\s\]\}]+/i, '').trim();
+        return text.replace(/^\s*[\(\[]?\s*[A-D][\.\:\)]+\s*/i, '').trim();
       };
 
       optionA = cleanOptionText(blockText.substring(idxA, idxB));
@@ -265,7 +265,7 @@ export function parseNeetQuestions(rawText) {
     const fullSearchText = restOfBlock || blockText;
     
     // Find answer letter: Ans: B or Answer is C or Correct option = D or Answer: A
-    const ansExtractPattern = /(?:Answer|Ans|Correct Option|Correct Answer|Correct)\s*[\:\-\=\s]*\s*([A-D])/i;
+    const ansExtractPattern = /(?:Answer|Ans|Correct Option|Correct Answer|Correct)\s*[\:\-\=]?\s*([A-D])/i;
     const ansMatch = fullSearchText.match(ansExtractPattern);
     if (ansMatch && ansMatch[1]) {
       correctAnswer = ansMatch[1].toUpperCase();
@@ -279,7 +279,7 @@ export function parseNeetQuestions(rawText) {
 
     // Extract explanation
     let explanation = '';
-    const expExtractPattern = /(?:Explanation|Sol|Solution|Exp)\s*[\:\-\=\s]*\s*([\s\S]+)/i;
+    const expExtractPattern = /(?:Explanation|Sol|Solution|Exp)\s*[\:\-\=]?\s*([\s\S]+)/i;
     const expMatch = fullSearchText.match(expExtractPattern);
     if (expMatch && expMatch[1]) {
       explanation = expMatch[1].trim();

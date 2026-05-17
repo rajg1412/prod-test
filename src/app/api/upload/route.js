@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import mammoth from 'mammoth';
-import { PDFParse } from 'pdf-parse';
 import { parseNeetQuestions } from '@/lib/parser';
 
 // Set max body size or config if necessary in Next.js 15
@@ -30,11 +29,9 @@ export async function POST(request) {
       const result = await mammoth.extractRawText({ buffer });
       extractedText = result.value;
     } else if (fileType === 'pdf') {
-      // Modern async loading using the PDFParse class signature
-      const parser = new PDFParse({ data: buffer });
-      await parser.load();
-      extractedText = await parser.getText();
-      await parser.destroy(); // Free up memory
+      const pdf = require('pdf-parse');
+      const data = await pdf(buffer);
+      extractedText = data.text;
     } else {
       return NextResponse.json(
         { success: false, error: 'Unsupported file format. Please upload TXT, PDF, or DOCX.' },
