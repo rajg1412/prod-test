@@ -172,12 +172,12 @@ export async function GET(request) {
 
     // Separate strong vs weak chapters (accuracy > 70% vs accuracy <= 55%)
     const strongChapters = formattedChapters
-      .filter(c => c.accuracy >= 70 && c.total >= 3)
+      .filter(c => c.accuracy >= 70 && c.total >= 1)
       .sort((a, b) => b.accuracy - a.accuracy)
       .slice(0, 5);
 
     const weakChapters = formattedChapters
-      .filter(c => c.accuracy < 60 && c.total >= 3)
+      .filter(c => c.accuracy < 60 && c.total >= 1)
       .sort((a, b) => a.accuracy - b.accuracy)
       .slice(0, 5);
 

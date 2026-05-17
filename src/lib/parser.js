@@ -289,8 +289,32 @@ export function parseNeetQuestions(rawText) {
     }
 
     // Detect subject and chapter
-    const subject = detectSubject(questionText, explanation);
-    const chapter = detectChapter(subject, questionText, explanation);
+    let subject = detectSubject(questionText, explanation);
+    let chapter = detectChapter(subject, questionText, explanation);
+
+    // Look for explicit Subject/Chapter override lines in the block
+    const explicitSubjectPattern = /(?:\r?\n|^)\s*(?:Subject|Sub)\s*[\:\-\=]\s*([a-zA-Z\s]+)/i;
+    const explicitSubjectMatch = blockText.match(explicitSubjectPattern);
+    if (explicitSubjectMatch && explicitSubjectMatch[1]) {
+      const explicitSub = explicitSubjectMatch[1].trim().toLowerCase();
+      if (explicitSub.includes('chem')) {
+        subject = 'Chemistry';
+      } else if (explicitSub.includes('phys')) {
+        subject = 'Physics';
+      } else if (explicitSub.includes('bio')) {
+        subject = 'Biology';
+      }
+    }
+
+    const explicitChapterPattern = /(?:\r?\n|^)\s*(?:Chapter|Chap)\s*[\:\-\=]\s*([a-zA-Z0-9\-\s\&\,\.\(\)]+)/i;
+    const explicitChapterMatch = blockText.match(explicitChapterPattern);
+    if (explicitChapterMatch && explicitChapterMatch[1]) {
+      chapter = explicitChapterMatch[1].trim();
+    }
+
+    // Clean up the text by removing the explicit markers if present to keep student view clean
+    questionText = questionText.replace(explicitSubjectPattern, '').replace(explicitChapterPattern, '').trim();
+    explanation = explanation.replace(explicitSubjectPattern, '').replace(explicitChapterPattern, '').trim();
 
     // Filter out if options are completely empty (helps prevent parsing blank lines)
     if (questionText.length > 3 && optionA.length > 0) {
