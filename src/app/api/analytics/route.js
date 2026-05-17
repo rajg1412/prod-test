@@ -38,7 +38,7 @@ export async function GET(request) {
     // 1. Fetch all attempts for user using supabaseAdmin to bypass RLS
     const { data: attempts, error: attemptsError } = await supabaseAdmin
       .from('attempts')
-      .select('*, test:tests(title)')
+      .select('*, test:tests(title, total_questions)')
       .eq('user_id', userId)
       .order('created_at', { ascending: true });
 
@@ -66,14 +66,19 @@ export async function GET(request) {
     let totalAccuracy = 0;
     let totalTimeSpentSeconds = 0;
     let totalAttemptedQuestions = 0;
+    let totalMaxScore = 0;
 
     attempts.forEach(a => {
       totalScore += a.score;
       totalAccuracy += parseFloat(a.accuracy);
       totalTimeSpentSeconds += a.time_spent_seconds;
+      
+      const qCount = a.test?.total_questions || 180;
+      totalMaxScore += qCount * 4;
     });
 
     const averageScore = Math.round(totalScore / totalAttempts);
+    const averageMaxScore = Math.round(totalMaxScore / totalAttempts);
     const averageAccuracy = parseFloat((totalAccuracy / totalAttempts).toFixed(1));
 
     // Subject Performance Accumulators
@@ -146,6 +151,7 @@ export async function GET(request) {
         testTitle: a.test?.title || `Practice #${idx + 1}`,
         date: formattedDate,
         score: a.score,
+        maxScore: (a.test?.total_questions || 180) * 4,
         accuracy: parseFloat(a.accuracy)
       };
     });
@@ -184,6 +190,7 @@ export async function GET(request) {
         summary: {
           totalAttempts,
           averageScore,
+          averageMaxScore,
           averageAccuracy,
           totalTimeSpentSeconds,
           averageTimePerQuestion

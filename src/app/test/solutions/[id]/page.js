@@ -32,12 +32,26 @@ export default function TestSolutionsPage({ params }) {
     const loadTestDetails = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/tests/${id}`);
+        // Load the test details and student's attempt records in parallel
+        const [response, attemptsResponse] = await Promise.all([
+          fetch(`/api/tests/${id}`),
+          fetch(`/api/attempts?userId=${session.id}`)
+        ]);
+        
         const data = await response.json();
+        const attemptsData = await attemptsResponse.json();
 
         if (response.ok && data.success) {
           setTest(data.test);
           setQuestions(data.questions || []);
+
+          // Exam integrity check: Has the student completed this test at least once?
+          const hasAttempted = attemptsData.success && 
+                               attemptsData.attempts.some(a => a.test_id === id);
+
+          if (!hasAttempted) {
+            setError('Exam Key Locked! You must complete and submit this practice exam at least once to unlock the answers and explanations.');
+          }
         } else {
           setError(data.error || 'Failed to download the exam answer key.');
         }

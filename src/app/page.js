@@ -65,7 +65,17 @@ export default function HomePage() {
 
   // Calculate quick metrics for the student
   const totalMockTestsTaken = attempts.length;
-  const highestScore = attempts.reduce((max, curr) => curr.score > max ? curr.score : max, 0);
+
+  // Find the attempt with the highest absolute score
+  const bestAttempt = attempts.reduce((best, curr) => {
+    if (!best || curr.score > best.score) return curr;
+    return best;
+  }, null);
+
+  const highestScoreText = bestAttempt
+    ? `${bestAttempt.score} / ${(bestAttempt.test?.total_questions || 180) * 4}`
+    : '—';
+
   const averageAccuracy = attempts.length > 0 
     ? Math.round(attempts.reduce((sum, curr) => sum + parseFloat(curr.accuracy), 0) / attempts.length) 
     : 0;
@@ -130,7 +140,7 @@ export default function HomePage() {
           <div>
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Highest Score</span>
             <span className="text-2xl font-black text-white">
-              {totalMockTestsTaken > 0 ? `${highestScore} / 720` : '—'}
+              {highestScoreText}
             </span>
           </div>
         </div>
@@ -205,13 +215,15 @@ export default function HomePage() {
                   </div>
 
                   <div className="flex gap-2 w-full sm:w-auto justify-end">
-                    <Link
-                      href={`/test/solutions/${test.id}`}
-                      className="py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-semibold rounded-xl border border-slate-700/80 tracking-wide transition-all cursor-pointer tap-highlight-transparent flex items-center gap-1"
-                    >
-                      <BookOpen className="w-3.5 h-3.5 text-primary" />
-                      <span>Study Explanations</span>
-                    </Link>
+                    {attempts.some(a => a.test_id === test.id) && (
+                      <Link
+                        href={`/test/solutions/${test.id}`}
+                        className="py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-semibold rounded-xl border border-slate-700/80 tracking-wide transition-all cursor-pointer tap-highlight-transparent flex items-center gap-1"
+                      >
+                        <BookOpen className="w-3.5 h-3.5 text-primary" />
+                        <span>Study Explanations</span>
+                      </Link>
+                    )}
                     
                     <Link
                       href={`/test/${test.id}`}

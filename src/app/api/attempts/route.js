@@ -198,7 +198,7 @@ export async function GET(request) {
     // Fetch attempts from DB using supabaseAdmin to bypass read RLS policies on behalf of the user
     const { data, error } = await supabaseAdmin
       .from('attempts')
-      .select('*, test:tests(title)')
+      .select('*, test:tests(title, total_questions)')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 

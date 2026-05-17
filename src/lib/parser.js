@@ -112,13 +112,14 @@ function detectSubject(questionText, explanationText = '') {
 
   for (const [subject, keywords] of Object.entries(SUBJECT_KEYWORDS)) {
     let score = 0;
-    keywords.forEach(kw => {
-      // Find whole-word matches or substring occurrences
-      const matches = fullText.match(new RegExp('\\b' + kw, 'g'));
-      if (matches) {
-        score += matches.length;
+    for (let i = 0; i < keywords.length; i++) {
+      const kw = keywords[i];
+      let pos = fullText.indexOf(kw);
+      while (pos !== -1) {
+        score++;
+        pos = fullText.indexOf(kw, pos + kw.length);
       }
-    });
+    }
     if (score > maxScore) {
       maxScore = score;
       detectedSubject = subject;
@@ -140,12 +141,14 @@ function detectChapter(subject, questionText, explanationText = '') {
 
   for (const [chapterName, keywords] of Object.entries(chapters)) {
     let score = 0;
-    keywords.forEach(kw => {
-      const matches = fullText.match(new RegExp('\\b' + kw, 'g'));
-      if (matches) {
-        score += matches.length * 2; // Extra weight for chapter-specific matches
+    for (let i = 0; i < keywords.length; i++) {
+      const kw = keywords[i];
+      let pos = fullText.indexOf(kw);
+      while (pos !== -1) {
+        score += 2; // Extra weight for chapter-specific matches
+        pos = fullText.indexOf(kw, pos + kw.length);
       }
-    });
+    }
     if (score > maxScore && score > 0) {
       maxScore = score;
       detectedChapter = chapterName;

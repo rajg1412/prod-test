@@ -152,7 +152,7 @@ export default function TestResultsPage({ params }) {
           <Award className="w-5 h-5 text-primary mx-auto mb-2.5" />
           <span className="block text-[10px] uppercase font-bold text-slate-500">NEET Score</span>
           <span className="text-2xl font-black text-white mt-0.5">
-            {attempt?.score} <span className="text-xs text-slate-500">/ 720</span>
+            {attempt?.score} <span className="text-xs text-slate-500">/ {test ? (test.total_questions * 4) : 720}</span>
           </span>
         </div>
 

@@ -175,7 +175,7 @@ export default function DashboardPage() {
           <div className="flex flex-wrap items-center gap-3">
             <div className="text-right">
               <div className="text-xs uppercase font-bold text-slate-500">Score</div>
-              <div className="text-xl font-black text-white">{latestAttempt.score} / 720</div>
+              <div className="text-xl font-black text-white">{latestAttempt.score} / {(latestAttempt.test?.total_questions || 180) * 4}</div>
             </div>
             <div className="text-right">
               <div className="text-xs uppercase font-bold text-slate-500">Accuracy</div>
@@ -209,7 +209,7 @@ export default function DashboardPage() {
           <div>
             <span className="text-[10px] uppercase font-bold tracking-wider text-slate-500">Average Score</span>
             <span className="text-2xl font-black text-white mt-0.5 block">
-              {summary.averageScore} <span className="text-xs text-slate-500">/ 720</span>
+              {summary.averageScore} <span className="text-xs text-slate-500">/ {summary.averageMaxScore || 720}</span>
             </span>
           </div>
         </div>
@@ -240,7 +240,7 @@ export default function DashboardPage() {
         <div className="bg-card border border-border p-5 rounded-2xl shadow-md space-y-4">
           <div>
             <h4 className="text-sm font-black text-white uppercase tracking-wider">NEET Score Velocity</h4>
-            <p className="text-[10px] text-slate-400">Score improvement across submitted tests (Goal: 650+)</p>
+            <p className="text-[10px] text-slate-400">Score improvement across submitted tests</p>
           </div>
 
           <div className="h-64 w-full text-xs">
@@ -249,11 +249,17 @@ export default function DashboardPage() {
                 <LineChart data={progressTrends} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
                   <XAxis dataKey="attemptNumber" tickFormatter={(v) => `Test ${v}`} stroke="#64748b" />
-                  <YAxis domain={[0, 720]} stroke="#64748b" />
+                  <YAxis domain={[0, 'auto']} stroke="#64748b" />
                   <Tooltip 
                     contentStyle={{ backgroundColor: '#131a2c', borderColor: '#1e293b', borderRadius: '12px' }}
                     labelClassName="text-white font-bold"
                     itemStyle={{ color: '#3b82f6' }}
+                    formatter={(value, name, props) => {
+                      if (name === 'score') {
+                        return [`${value} / ${props.payload.maxScore}`, 'Score'];
+                      }
+                      return [value, name];
+                    }}
                   />
                   <Line 
                     type="monotone" 
